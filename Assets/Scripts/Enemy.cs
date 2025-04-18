@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class Enemy : MonoBehaviour
 {
@@ -19,6 +20,10 @@ public class Enemy : MonoBehaviour
         if (player == null) return;
 
         Vector2 direction = (player.position - transform.position).normalized;
+
+        // Fjern y-bevægelse så fjenden går vandret
+        direction.y = 0;
+
         transform.position += (Vector3)direction * speed * Time.deltaTime;
     }
 
@@ -28,7 +33,12 @@ public class Enemy : MonoBehaviour
         {
             Destroy(other.gameObject); // Fjern kuglen
             Destroy(gameObject);       // Fjern fjenden
-            ScoreManager.instance.AddScore(1); // Giv +1 score
+
+            // Tilføj point
+            if (ScoreManager.instance != null)
+            {
+                ScoreManager.instance.AddScore(1);
+            }
         }
 
         if (other.CompareTag("Player"))
@@ -36,6 +46,12 @@ public class Enemy : MonoBehaviour
             Debug.Log("Game Over!");
             Destroy(other.gameObject); // Fjern spilleren
             Time.timeScale = 0f;       // Stop spillet
+
+            // Vis Game Over UI med score
+            if (GameOverUI.instance != null && ScoreManager.instance != null)
+            {
+                GameOverUI.instance.Show(ScoreManager.instance.GetScore());
+            }
         }
     }
 }
